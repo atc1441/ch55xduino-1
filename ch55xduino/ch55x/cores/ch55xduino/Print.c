@@ -42,84 +42,84 @@ void printNL(void);
 
 uint8_t Print_print_sn(writefunc_p writefunc, uint8_t * __xdata buffer, __xdata uint8_t size)
 {
-  uint8_t n = 0;
-  while (size--) {
-    if (writefunc(*buffer++)) n++;
-    else break;
-  }
-  return n;
+    uint8_t n = 0;
+    while (size--) {
+        if (writefunc(*buffer++)) n++;
+        else break;
+    }
+    return n;
 }
 
 uint8_t Print_print_s(writefunc_p writefunc, char * __xdata str)
 {
-	uint8_t		n = 0;
-	char c;
-
-	if (!str) return 0;
-
-	while ( c=*str++ ) {	// assignment intented
-		if (writefunc(c)) n++;
-		else break;
-	}
-	return n;
+    uint8_t        n = 0;
+    char c;
+    
+    if (!str) return 0;
+    
+    while ( c=*str++ ) {    // assignment intented
+        if (writefunc(c)) n++;
+        else break;
+    }
+    return n;
 }
 
 
 uint8_t Print_print_u(writefunc_p writefunc, __xdata unsigned long n)
 {
-	return printNumber(writefunc, n,10);
+    return printNumber(writefunc, n,10);
 }
 
 uint8_t Print_print_i(writefunc_p writefunc, __xdata long n)
 {
-	return printInt(writefunc, n,10);
+    return printInt(writefunc, n,10);
 }
 
 // (not so) Private Methods /////////////////////////////////////////////////////////////
 
 uint8_t Print_println(writefunc_p writefunc)
 {
-	uint8_t n;
-
-	n  = writefunc(13);
-	n += writefunc(10);
-	return n;
+    uint8_t n;
+    
+    n  = writefunc(13);
+    n += writefunc(10);
+    return n;
 }
 
 
 uint8_t Print_print_ub(writefunc_p writefunc, __xdata unsigned long n, __xdata uint8_t base)
 {
-  __xdata char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
-  __xdata char *str = &buf[sizeof(buf) - 1];
-
-  *str = '\0';
-
-  // prevent crash if called with base == 1
-  if (base < 2) base = 10;
-
-  do {
-    char c = n % base;
-    n /= base;
-
-    *--str = c < 10 ? c + '0' : c + 'A' - 10;
-  } while(n);
-
-  return Print_print_s(writefunc, str);
+    __xdata char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
+    __xdata char *str = &buf[sizeof(buf) - 1];
+    
+    *str = '\0';
+    
+    // prevent crash if called with base == 1
+    if (base < 2) base = 10;
+    
+    do {
+        char c = n % base;
+        n /= base;
+        
+        *--str = c < 10 ? c + '0' : c + 'A' - 10;
+    } while(n);
+    
+    return Print_print_s(writefunc, str);
 }
 
 uint8_t Print_print_ib(writefunc_p writefunc, __xdata long n, __xdata uint8_t base)
 {
-  if (base == 0) {
-    return writefunc((unsigned char) n);
-  } else if (base == 10) {
-    if (n < 0) {
-      int t = writefunc('-');
-      n = -n;
-      return printNumber(writefunc, n, 10) + t;
+    if (base == 0) {
+        return writefunc((unsigned char) n);
+    } else if (base == 10) {
+        if (n < 0) {
+            int t = writefunc('-');
+            n = -n;
+            return printNumber(writefunc, n, 10) + t;
+        }
+        return printNumber(writefunc, n, 10);
+    } else {
+        return printNumber(writefunc, n, base);
     }
-    return printNumber(writefunc, n, 10);
-  } else {
-    return printNumber(writefunc, n, base);
-  }
 }
 

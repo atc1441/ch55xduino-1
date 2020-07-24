@@ -1,12 +1,12 @@
-#ifndef USER_USB_RAM
-
 #include <stdint.h>
 #include <stdbool.h>
 #include "include/ch554.h"
 #include "include/ch554_usb.h"
+#include "USBconstant.h"
+#include "USBhandler.h"
 
-extern __xdata uint8_t Ep0Buffer[];
-extern __xdata uint8_t Ep2Buffer[];
+extern __xdata __at (EP0_ADDR) uint8_t  Ep0Buffer[];
+extern __xdata __at (EP2_ADDR) uint8_t  Ep2Buffer[];
 
 #define LINE_CODEING_SIZE 7
 __xdata uint8_t LineCoding[LINE_CODEING_SIZE]={0x00,0xe1,0x00,0x00,0x00,0x00,0x08};   //Initialize for baudrate 57600, 1 stopbit, No parity, eight data bits
@@ -19,7 +19,18 @@ volatile __xdata uint8_t controlLineState = 0;
 
 __xdata uint8_t usbWritePointer = 0;
 
+typedef void( *pTaskFn)( void );
+
 void delayMicroseconds(uint16_t us);
+
+void USBInit(){
+    USBDeviceCfg();                                                       //Device mode configuration
+    USBDeviceEndPointCfg();                                               //Endpoint configuration   
+    USBDeviceIntCfg();                                                    //Interrupt configuration    
+    UEP0_T_LEN = 0;
+    UEP1_T_LEN = 0;                                                       //Pre-use send length must be cleared	  
+    UEP2_T_LEN = 0;                                                          
+}
 
 void resetCDCParameters(){
 
@@ -51,11 +62,13 @@ void setControlLineStateHandler(){
 
     // We check DTR state to determine if host port is open (bit 0 of lineState).
     if ( ((controlLineState & 0x01) == 0) && (*((__xdata uint32_t *)LineCoding) == 1200) ){ //both linecoding and sdcc are little-endian
+        pTaskFn tasksArr[1];
         USB_CTRL = 0;
         EA = 0;                                                                    //Disabling all interrupts is required.
+        tasksArr[0] = (pTaskFn)0x3800;
         delayMicroseconds(50000);
         delayMicroseconds(50000);
-        __asm__ ("lcall #0x3800");                                                 //Jump to bootloader code
+        (tasksArr[0])( );                                                          //Jump to bootloader code
         while(1);
     }
     
@@ -63,10 +76,10 @@ void setControlLineStateHandler(){
 
 bool USBSerial(){
     bool result = false;
-    if (controlLineState > 0)
-        result = true;
-    //delay(10); not doing it for now
-    return result;
+	if (controlLineState > 0) 
+		result = true;
+	//delay(10); not doing it for now
+	return result;
 }
 
 
@@ -156,4 +169,3 @@ void USB_EP2_OUT(){
     }
 }
 
-#endif

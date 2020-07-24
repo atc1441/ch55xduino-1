@@ -1,5 +1,3 @@
-#ifndef USER_USB_RAM
-
 #include "USBhandler.h"
 
 #include "USBconstant.h"
@@ -15,6 +13,10 @@ void USB_EP2_OUT();
 __xdata __at (EP0_ADDR) uint8_t  Ep0Buffer[8];     
 __xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[8];       //on page 47 of data sheet, the receive buffer need to be min(possible packet size+2,64)
 __xdata __at (EP2_ADDR) uint8_t  Ep2Buffer[128];     //IN and OUT buffer, must be even address
+
+#if (EP2_ADDR+128) > USER_USB_RAM
+#error "This example needs more USB ram. Increase this setting in menu."
+#endif
 
 uint16_t SetupLen;
 uint8_t SetupReq,UsbConfig;
@@ -508,5 +510,3 @@ void USBDeviceEndPointCfg()
     UEP4_1_MOD = 0X40;                                                         //endpoint1 TX enable
     UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;                //Manual flip, OUT transaction returns ACK, IN transaction returns NAK
 }
-
-#endif

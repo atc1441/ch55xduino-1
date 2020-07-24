@@ -37,6 +37,22 @@ Now you should find a new entry *CH55x Boards* in the list at
 * If your board is never used with ch55xduino before, you need to make the ch55x chip enter bootloader mode. You need to disconnect USB and unpower ch55x, connect the pull-up resistor on D+ line (generally a 10K resistor between D+ and 5V, controlled by a push-button or adjacent pads). Then you connect USB. and hit *Upload*. Also, a blank new chip will enter the bootloader automatically.
 * If you have used ch55xduino once and your code doesn't crash the USB subsystem, you can simply press *Upload*. Arduino and the firmware will kick the chip into the bootloader automatically.
 
+### USB and Serial upload
+
+Ch55xduino supports both USB and Serial upload methods. If the USB port of the CH55x chip is connected to a host computer, the USB method is recommended.
+
+It is also possible to upload via serial on UART1 of CH55x chips (except CH551). To set CH55x into bootloader mode automatically, you can connect RTS or DTR of a serial adaptor to an interrupt pin of CH55x with a capacitor, and add bootloader jumping code in the interrupt handler.
+
+If you want to leave the bootloader, you may send the following bytes at 57600 baud. ```57 AB A2 01 00 01 A4```  
+
+### Driver for windows
+
+![Zadig image](https://raw.githubusercontent.com/DeqingSun/ch55xduino/ch55xduino/docs/Zadig_bootloader.png)
+
+[Zadig](https://zadig.akeo.ie/) is the recommended tool to install drivers in Windows. The bootloader (4348,55E0) should be installed with WinUSB or libusb-win32 driver.
+
+You can use USB Serial (CDC) driver for default CDC USB stack. If you tried to emulate another type of USB device without changing the PID/VID, you may need to uninstall the device before installing a new driver.
+
 ## Reference board
 
 ![Front image](https://raw.githubusercontent.com/DeqingSun/ch55xduino/ch55xduino/docs/simpleCH552Front.jpg)
@@ -116,6 +132,7 @@ Unlike AVR chips, CH55x will reset when the RST pin is High. The reset pin may b
 
 ## Known issues
 
+.
 
 ## Included libraries
 
@@ -149,6 +166,6 @@ guide](https://tenbaht.github.io/sduino/api/migration/) for an overview.
 Arduino IDE versions 1.8.12 are tested, but
 most versions >=1.6.6 should work.
 
-* Windows: Tested on Windows 7. Ch55xduino should work on XP (not tested).
+* Windows: Tested on Windows 7 and XP.
 
 * MacOS: tested on 10.14.

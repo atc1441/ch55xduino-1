@@ -32,7 +32,7 @@ void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), __xdata uint8
             case 1:
                 IT1 = mode;
                 EX1 = 1;
-               break;	
+               break;    
         }
     }
 }

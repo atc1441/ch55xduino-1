@@ -33,6 +33,8 @@
 #include "include/ch554.h"
 #include "include/ch554_usb.h"
 #include "pins_arduino_include.h"
+//Macro-based digital IO fucntions
+#include "wiring_digital_fast.h"
 
 //!!!!#include "binary.h"
 
@@ -186,7 +188,7 @@ void analogWrite(uint8_t pin, __xdata uint16_t val);
 uint32_t millis(void);
 uint32_t micros(void);
 void delay(uint32_t ms);
-//void delayMicroseconds(unsigned int us);
+void delayMicroseconds(uint16_t us);
 //unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout);
 //unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout);
 

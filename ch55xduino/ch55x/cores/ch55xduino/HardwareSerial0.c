@@ -1,20 +1,17 @@
 #include "HardwareSerial.h"
 
-__xdata unsigned char serial0Initialized = 0;
+__xdata unsigned char serial0Initialized;
 
-__xdata uint8_t Receive_Uart0_Buf[SERIAL0_RX_BUFFER_SIZE];   //arduino style serial buffer
-__xdata uint8_t Transmit_Uart0_Buf[SERIAL0_TX_BUFFER_SIZE];   //arduino style serial buffer
-volatile __xdata uint8_t uart0_rx_buffer_head=0;
-volatile __xdata uint8_t uart0_rx_buffer_tail=0;
-volatile __xdata uint8_t uart0_tx_buffer_head=0;
-volatile __xdata uint8_t uart0_tx_buffer_tail=0;
-volatile __xdata uint8_t uart0_flags=0;
-
-#define UART0_FLG_SENDING     (1<<0)
+extern __xdata uint8_t Receive_Uart0_Buf[];   //arduino style serial buffer
+extern __xdata uint8_t Transmit_Uart0_Buf[];   //arduino style serial buffer
+extern volatile __xdata uint8_t uart0_rx_buffer_head;
+extern volatile __xdata uint8_t uart0_rx_buffer_tail;
+extern volatile __xdata uint8_t uart0_tx_buffer_head;
+extern volatile __xdata uint8_t uart0_tx_buffer_tail;
+extern volatile __xdata uint8_t uart0_flags;
 
 //extern wait functions
-void mDelayuS( uint16_t n );
-void mDelaymS( uint16_t n );
+void delayMicroseconds(uint16_t us);
 
 uint8_t Serial0(void){
     return serial0Initialized;
@@ -63,7 +60,7 @@ uint8_t Serial0_write(uint8_t SendDat)
     uint16_t waitWriteCount=0;
     while ((nextHeadPos == uart0_tx_buffer_tail) ){    //wait max 100ms or discard
         waitWriteCount++;
-        mDelayuS(5);   
+        delayMicroseconds(5);   
         if (waitWriteCount>=20000) return 0;
     }
     Transmit_Uart0_Buf[uart0_tx_buffer_head]=SendDat;
@@ -91,26 +88,3 @@ uint8_t Serial0_read(void){
     }
     return 0;
 }
-
-void uart0IntRxHandler(){
-    uint8_t nextHead = (uart0_rx_buffer_head + 1) % SERIAL0_RX_BUFFER_SIZE;
-    
-    if (nextHead != uart0_rx_buffer_tail) {
-        Receive_Uart0_Buf[uart0_rx_buffer_head] = SBUF;
-        uart0_rx_buffer_head = nextHead;
-    }
-}
-
-void uart0IntTxHandler(){
-    if ((uart0_flags & UART0_FLG_SENDING)){
-        if (uart0_tx_buffer_head == uart0_tx_buffer_tail){
-            //do no more
-            uart0_flags &= ~(UART0_FLG_SENDING);
-        }else{
-            SBUF=Transmit_Uart0_Buf[uart0_tx_buffer_tail];
-            uart0_tx_buffer_tail = (uart0_tx_buffer_tail + 1) % SERIAL0_TX_BUFFER_SIZE;
-        }
-    }
-}
-
-

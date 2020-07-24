@@ -24,21 +24,31 @@ void USBInterrupt(void);
 
 //unsigned char runSerialEvent;
 
-void DeviceUSBInterrupt(void) __interrupt (INT_NO_USB)                       //USB interrupt service, using register bank 1
+void DeviceUSBInterrupt(void) __interrupt (INT_NO_USB)                       //USB interrupt service
 {
     USBInterrupt();
 }
 
-//__idata volatile uint8_t timer0Counter = 0;
-__idata volatile uint32_t timer0_millis = 0;
-__idata volatile uint32_t timer0_overflow_count = 0;
+// 0x08~0x0F belongs to register bank 1
+__idata __at (0x08) volatile uint32_t timer0_overflow_count = 0;
+__idata __at (0x0C) volatile uint8_t timer0_overflow_count_5th_byte = 0;
 
-void Timer0Interrupt(void) __interrupt (INT_NO_TMR0)                       
+void Timer0Interrupt(void) __interrupt (INT_NO_TMR0) __using(1) //using register bank 1
 {
-    timer0_overflow_count++;
-    if ((timer0_overflow_count & 7) == 0) { //inc by 8
-        timer0_millis++;
-    }
+    /*timer0_overflow_count++;
+    */ //when putting timer0_millis and timer0_overflow_count in bank 1, C code is no longer correct
+    __asm__ (";Increase timer0_overflow_count on R0~R4(5bytes)\n"
+             "    inc r0                                   \n"
+             "    cjne r0,#0,incTimer0_overflow_countOver$ \n"
+             "    inc r1                                   \n"
+             "    cjne r1,#0,incTimer0_overflow_countOver$ \n"
+             "    inc r2                                   \n"
+             "    cjne r2,#0,incTimer0_overflow_countOver$ \n"
+             "    inc r3                                   \n"
+             "    cjne r3,#0,incTimer0_overflow_countOver$ \n"
+             "    inc r4                                   \n"
+             "incTimer0_overflow_countOver$:               \n"
+             );
 }
 
 void Uart0_ISR(void) __interrupt (INT_NO_UART0)
@@ -73,23 +83,25 @@ void TOUCHKEY_ISR(void) __interrupt (INT_NO_TKEY)
 }
 
 
-int main(void)
+void main(void)
 {
-	init();
-
-	//!!!initVariant();
-
-	setup();
+    init();
     
-	for (;;) {
-		loop();
-		if (1) {
+    //!!!initVariant();
+    
+    setup();
+    
+    for (;;) {
+        loop();
+        if (1) {
+#ifndef USER_USB_RAM
             USBSerial_flush();
+#endif
             //serialEvent();
         }
-	}
-        
-//	return 0;
+    }
+    
+    //    return 0;
 }
 
 unsigned char _sdcc_external_startup (void) __nonbanked

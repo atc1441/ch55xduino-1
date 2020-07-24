@@ -1,12 +1,10 @@
-#ifndef USER_USB_RAM
-
 #ifndef __USB_HANDLER_H__
 #define __USB_HANDLER_H__
 
 #include <stdint.h>
 #include "include/ch554.h"
 #include "include/ch554_usb.h"
-
+#include "USBconstant.h"
 
 extern __xdata __at (EP0_ADDR) uint8_t  Ep0Buffer[];
 extern __xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[];
@@ -47,9 +45,18 @@ extern const __code uint8_t *pDescr;
 #define EP3_SETUP_Callback NOP_Process
 #define EP4_SETUP_Callback NOP_Process
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void USBInterrupt(void);
+void USBDeviceCfg();
+void USBDeviceIntCfg();
+void USBDeviceEndPointCfg();
 
-
+#ifdef __cplusplus
+} // extern "C"
 #endif
 
 #endif
+

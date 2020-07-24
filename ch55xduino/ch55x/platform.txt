@@ -2,7 +2,7 @@
 # Arduino CH55x Core and platform.
 # ------------------------------
 #
-# Part of the sduino project: https://github.com/tenbaht/sduino
+# Part of the ch55xduino project: https://github.com/DeqingSun/ch55xduino
 # For more info on this file:
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
 
@@ -133,14 +133,25 @@ recipe.preproc.macros="{compiler.wrapper.path}/{compiler.cpp.cmd}.sh" "{compiler
 # vnproch55x
 # -------------------------------------
 
-tools.vnproch55x.cmd=vnproch55x
+tools.vnproch55x_usb.cmd=vnproch55x
 # these lines are for manual install. For board manager installs they get converted to use
 # {runtime.tools.MCS51Tools.path} instead of {runtime.hardware.path}/tools
-tools.vnproch55x.path={runtime.tools.MCS51Tools.path}/linux
-tools.vnproch55x.path.windows={runtime.tools.MCS51Tools.path}/win
-tools.vnproch55x.path.macosx={runtime.tools.MCS51Tools.path}/macosx
+tools.vnproch55x_usb.path={runtime.tools.MCS51Tools.path}/linux
+tools.vnproch55x_usb.path.windows={runtime.tools.MCS51Tools.path}/win
+tools.vnproch55x_usb.path.macosx={runtime.tools.MCS51Tools.path}/macosx
 
-#tools.stm8flash.upload.params.verify=
-tools.vnproch55x.upload.params.verbose=
-tools.vnproch55x.upload.params.quiet=
-tools.vnproch55x.upload.pattern="{path}/{cmd}" "{build.path}/{build.project_name}.hex"
+tools.vnproch55x_usb.upload.params.verbose=
+tools.vnproch55x_usb.upload.params.quiet=
+tools.vnproch55x_usb.upload.pattern="{path}/{cmd}" "{build.path}/{build.project_name}.hex"
+
+# ----
+
+tools.vnproch55x_serial.cmd=vnproch55x
+tools.vnproch55x_serial.path={runtime.tools.MCS51Tools.path}/linux
+tools.vnproch55x_serial.path.windows={runtime.tools.MCS51Tools.path}/win
+tools.vnproch55x_serial.path.macosx={runtime.tools.MCS51Tools.path}/macosx
+
+tools.vnproch55x_serial.upload.params.verbose=
+tools.vnproch55x_serial.upload.params.quiet=
+tools.vnproch55x_serial.upload.pattern="{path}/{cmd}" -s{serial.port} "{build.path}/{build.project_name}.hex"
+
